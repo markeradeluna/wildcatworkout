@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StudentStrong — Workout Planner for Student Athletes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#15171c; --paper:#f5f2ea; --card:#ffffff; --line:#d9d4c6;
+  --accent:#e2502a; --accent-dark:#b93c1c; --ok:#1d6b55; --warn:#8a5a00; --warn-bg:#fff4d6;
+  --muted:#5d6068;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 Barlow,system-ui,Segoe UI,Arial,sans-serif}
+h1,h2,h3{font-family:"Barlow Condensed",Impact,"Arial Narrow",sans-serif;text-transform:uppercase;letter-spacing:.02em;line-height:1.05;margin:0}
+header.hero{background:var(--ink);color:#fff;padding:36px 16px 44px;border-bottom:6px solid var(--accent)}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px}
+.hero h1{font-size:clamp(44px,9vw,84px);font-weight:800}
+.hero h1 span{color:var(--accent)}
+.hero p{max-width:560px;margin:10px 0 0;color:#cfd1d6;font-size:18px}
+main{padding:28px 0 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px;margin-bottom:20px}
+.step{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+.step b{font-family:"Barlow Condensed",sans-serif;background:var(--accent);color:#fff;border-radius:4px;padding:1px 9px;font-size:20px}
+.step h2{font-size:26px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+label{display:block;font-weight:600;font-size:14px;margin-bottom:4px}
+input[type=text],input[type=number],textarea{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:6px;font:inherit;background:#fff;color:var(--ink)}
+input:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:3px solid #f3a58f;outline-offset:1px;border-color:var(--accent)}
+textarea{min-height:70px;resize:vertical}
+.hint{font-size:13px;color:var(--muted);margin:4px 0 0}
+.units{display:flex;gap:16px;margin-bottom:12px;font-size:15px}
+.units label{display:inline-flex;gap:6px;align-items:center;font-weight:500;margin:0}
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}
+.checks label{display:flex;gap:8px;align-items:center;font-weight:500;font-size:15px;border:1.5px solid var(--line);border-radius:6px;padding:8px 10px;margin:0;cursor:pointer}
+.checks input:checked+span{font-weight:600}
+.checks label:has(input:checked){border-color:var(--accent);background:#fdeee9}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{border:1.5px solid var(--ink);background:#fff;border-radius:999px;padding:5px 13px;font:inherit;font-size:14px;cursor:pointer}
+.chip.on{background:var(--ink);color:#fff}
+.btn{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.04em;font-size:22px;font-weight:700;border:0;border-radius:6px;padding:12px 26px;cursor:pointer;background:var(--accent);color:#fff}
+.btn:hover{background:var(--accent-dark)}
+.btn.dark{background:var(--ink)}
+.btn.line{background:#fff;color:var(--ink);border:2px solid var(--ink)}
+.btn-s{display:inline-block;font:inherit;font-size:14px;font-weight:600;border:1.5px solid var(--ink);background:var(--ink);color:#fff;border-radius:5px;padding:5px 11px;cursor:pointer;text-decoration:none}
+.btn-s.ghost{background:#fff;color:var(--ink)}
+.btn-s.link{background:#fff;color:var(--ink)}
+#err{color:#a11;font-weight:600;margin:12px 0 0}
+#plan{display:none}
+.plan-head{background:var(--ink);color:#fff;border-radius:10px;padding:22px;margin-bottom:20px}
+.plan-head h2{font-size:40px}
+.stats{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:10px;color:#cfd1d6}
+.stats strong{color:#fff}
+.plan h3{font-size:26px;margin-bottom:10px;padding-bottom:6px;border-bottom:3px solid var(--accent);display:inline-block}
+.note{border-left:5px solid var(--warn);background:var(--warn-bg);padding:12px 14px;border-radius:0 6px 6px 0;margin:12px 0}
+.note.stop{border-color:#a11;background:#fde8e8}
+.note h4{margin:0 0 4px;font-size:16px}
+.note ul{margin:4px 0 0;padding-left:20px}
+.muscle{margin-top:18px}
+.muscle h4{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;font-size:22px;margin:0 0 6px}
+ul.exs{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.ex{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:#fcfbf7}
+.ex p{margin:4px 0 8px;color:#33363d}
+.vid-row{display:flex;flex-wrap:wrap;gap:8px}
+.player iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;margin-top:10px;background:#000}
+.skipped{font-size:14px;color:var(--warn);margin:8px 0 0}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.cols ul{margin:6px 0 0;padding-left:20px}
+.cols h4{margin:0;font-size:16px}
+.week{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;margin-top:8px}
+.day{border:1px solid var(--line);border-radius:6px;padding:8px;font-size:14px;background:#fcfbf7}
+.day b{display:block;font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;font-size:17px}
+.small{font-size:13px;color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+#saveMsg{font-weight:600;color:var(--ok)}
+.print-only{display:none}
+footer{font-size:13px;color:var(--muted);text-align:center;padding:0 16px 40px}
+@media print{
+  body{background:#fff;font-size:12pt}
+  .no-print,header.hero,#formCard,.player{display:none!important}
+  .print-only{display:block}
+  .card,.plan-head{border:1px solid #999;box-shadow:none;break-inside:avoid}
+  .plan-head{background:#fff;color:#000}.stats,.stats strong{color:#000}
+  .ex{break-inside:avoid}
+  main{padding:0}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Student<span>Strong</span></h1>
+    <p>Tell us about you and the muscles you want to build. Get a workout, food and habit plan made for a student athlete.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+<form id="formCard" novalidate>
+  <section class="card">
+    <div class="step"><b>1</b><h2>About you</h2></div>
+    <div class="units" role="radiogroup" aria-label="Units">
+      <label><input type="radio" name="units" value="imperial" checked> Feet / pounds</label>
+      <label><input type="radio" name="units" value="metric"> Centimeters / kilograms</label>
+    </div>
+    <div class="grid">
+      <div><label for="name">Name (optional)</label><input type="text" id="name" autocomplete="off"></div>
+      <div><label for="age">Age</label><input type="number" id="age" min="10" max="25" inputmode="numeric"></div>
+      <div class="imp"><label for="ft">Height (ft)</label><input type="number" id="ft" min="3" max="7" inputmode="numeric"></div>
+      <div class="imp"><label for="inch">Height (in)</label><input type="number" id="inch" min="0" max="11" inputmode="numeric"></div>
+      <div class="imp"><label for="lb">Weight (lb)</label><input type="number" id="lb" min="50" max="400" inputmode="decimal"></div>
+      <div class="met" hidden><label for="cm">Height (cm)</label><input type="number" id="cm" min="100" max="220" inputmode="numeric"></div>
+      <div class="met" hidden><label for="kg">Weight (kg)</label><input type="number" id="kg" min="25" max="180" inputmode="decimal"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="step"><b>2</b><h2>Health check</h2></div>
+    <p class="hint" style="margin:0 0 10px">Tick anything that applies. We use this to remove risky exercises and tell you what to avoid.</p>
+    <div class="checks" id="conds"></div>
+    <div style="margin-top:14px">
+      <label for="notes">Anything else? (other injuries, allergies, things your doctor told you to avoid)</label>
+      <textarea id="notes"></textarea>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="step"><b>3</b><h2>Muscles to improve</h2></div>
+    <label for="muscles">Type them in, separated by commas</label>
+    <input type="text" id="muscles" placeholder="e.g. chest, biceps, legs, abs" autocomplete="off">
+    <p class="hint">Or tap to add:</p>
+    <div class="chips" id="chips"></div>
+    <p id="err" role="alert"></p>
+    <p style="margin:18px 0 0"><button class="btn" type="submit">Build my plan</button></p>
+  </section>
+</form>
+
+<div id="plan" class="plan" aria-live="polite"></div>
+
+</main>
+
+<footer>
+  StudentStrong gives general fitness education, not medical advice. Check with a doctor, school nurse or athletic trainer before starting, especially with any health condition. Exercise list last reviewed November 2026.
+</footer>
+
+<script>
+/* =====================================================================
+   DATA — edit this section to update exercises, videos and advice.
+   ===================================================================== */
+
+/* YouTube videos that play inside the app. Key = exact exercise name, value = YouTube video ID
+   (the 11 characters after "v=" or "youtu.be/"). Add more lines here to give every student the same video. */
+const VIDEO_IDS = {
+  "Push-up": "_Luxy8rPzuU",
+  "Bench press (dumbbell or barbell)": "d0eLSy44ov4",
+  "Dumbbell chest fly": "mFmgYDPFCOw",
+  "Standing calf raise": "K_jsGgztcGU"
+};
+
+/* Stress tags: knee, lowback, shoulder, wrist, strain (heavy straining / long holds) */
+const MUSCLES = {
+  chest:{label:"Chest",group:"upper",words:["chest","pecs","pec","pectorals"],ex:[
+    ["Push-up","Hands under shoulders, body in one straight line. Lower your chest to just above the floor, then push up. Drop to your knees if your hips sag.",["wrist"]],
+    ["Bench press (dumbbell or barbell)","Lie on a bench, feet flat. Lower the weight to chest level with elbows about 45° from your sides, then press up. Always use a spotter with a barbell.",["shoulder"]],
+    ["Dumbbell floor press","Lie on the floor with knees bent. Press light dumbbells up, lower until your upper arms touch the floor. The floor limits the range, which is kind to shoulders.",[]],
+    ["Dumbbell chest fly","On a bench with light dumbbells above your chest, open your arms wide with a slight elbow bend, then squeeze back together.",["shoulder"]],
+    ["Incline push-up","Hands on a bench or sturdy desk. Same as a push-up but easier — a good starting point.",["wrist"]]
+  ]},
+  back:{label:"Back",group:"upper",words:["back","lats","lat","traps","upper back"],ex:[
+    ["One-arm dumbbell row (hand on bench)","One hand and knee on a bench, back flat. Pull the dumbbell toward your hip, pause, lower slowly.",[]],
+    ["Inverted row","Lie under a low bar, body straight. Pull your chest to the bar and lower with control. Bend your knees to make it easier.",[]],
+    ["Band pull-apart","Hold a resistance band at chest height, arms straight. Pull it apart by squeezing your shoulder blades together.",[]],
+    ["Lat pulldown or assisted pull-up","Pull the bar to your upper chest, leading with your elbows. No swinging.",["shoulder"]],
+    ["Bent-over dumbbell row","Hinge at the hips with a flat back, row both dumbbells to your ribs.",["lowback"]]
+  ]},
+  shoulders:{label:"Shoulders",group:"upper",words:["shoulders","shoulder","delts","deltoids"],ex:[
+    ["Band face pull","Anchor a band at face height. Pull toward your face with elbows high, squeezing the back of your shoulders.",[]],
+    ["Wall slide","Back against a wall, arms in a goalpost shape. Slide them up and down while keeping contact with the wall.",[]],
+    ["Dumbbell lateral raise","Light dumbbells at your sides. Raise your arms out to shoulder height with a soft elbow bend, lower slowly.",["shoulder"]],
+    ["Seated dumbbell shoulder press","Sit tall, press dumbbells overhead without arching your back. Breathe out as you press.",["shoulder","strain"]],
+    ["Dumbbell front raise","Raise light dumbbells straight in front to shoulder height, lower slowly.",["shoulder"]]
+  ]},
+  biceps:{label:"Biceps",group:"upper",words:["biceps","bicep","arms","arm","guns"],ex:[
+    ["Dumbbell biceps curl","Elbows pinned to your sides. Curl up, squeeze, lower for a slow count of three. No swinging.",[]],
+    ["Hammer curl","Same as a curl but palms face each other. Also trains the forearm.",[]],
+    ["Resistance band curl","Stand on a band and curl the handles up. Easy on the joints and good for home.",[]],
+    ["Chin-up (assisted if needed)","Palms facing you, pull your chin over the bar, lower all the way down under control.",["shoulder"]]
+  ]},
+  triceps:{label:"Triceps",group:"upper",words:["triceps","tricep","arms","arm"],ex:[
+    ["Band or cable pushdown","Elbows at your sides, push the band or rope down until your arms are straight, return slowly.",[]],
+    ["Dumbbell kickback","Hinge forward with one hand on a bench, upper arm level with your body. Straighten the elbow, pause, return.",[]],
+    ["Close-grip push-up","A push-up with hands under your chest and elbows brushing your ribs.",["wrist"]],
+    ["Overhead dumbbell triceps extension","Hold one dumbbell overhead with both hands, lower it behind your head, extend back up.",["shoulder"]],
+    ["Bench dip","Hands on a bench behind you, lower until elbows reach about 90°, press up.",["shoulder","wrist"]]
+  ]},
+  forearms:{label:"Forearms & grip",group:"upper",words:["forearms","forearm","grip","wrists"],ex:[
+    ["Farmer's carry","Hold a dumbbell in each hand and walk tall for 20–30 meters. Shoulders back, no leaning.",[]],
+    ["Towel or ball squeeze","Squeeze a rolled towel or tennis ball hard for 5 seconds, release. Repeat.",[]],
+    ["Dumbbell wrist curl","Forearm resting on your thigh, palm up. Curl the wrist up and lower slowly. Flip the palm down for reverse curls.",["wrist"]],
+    ["Dead hang","Hang from a pull-up bar with straight arms for 15–30 seconds.",["shoulder"]]
+  ]},
+  core:{label:"Core / abs",group:"core",words:["core","abs","ab","abdominals","stomach","six pack","obliques"],ex:[
+    ["Dead bug","On your back, arms up, knees at 90°. Lower the opposite arm and leg slowly while your lower back stays pressed to the floor.",[]],
+    ["Bird dog","On hands and knees, reach the opposite arm and leg out long, pause, switch. Keep your hips level.",[]],
+    ["Forearm plank","Elbows under shoulders, body in a straight line. Hold 20–40 seconds while breathing normally.",["strain"]],
+    ["Side plank","On one forearm, body straight from head to feet. Hold 15–30 seconds each side.",["shoulder","strain"]],
+    ["Lying leg raise","On your back, raise straight legs to vertical and lower slowly without your back arching.",["lowback"]]
+  ]},
+  quads:{label:"Quads (front of thighs)",group:"lower",words:["quads","quad","legs","leg","thighs","thigh","quadriceps"],ex:[
+    ["Box squat (sit to a bench)","Sit back to a bench or chair and stand up without using your hands. Only go as low as feels pain-free.",[]],
+    ["Straight-leg raise","On your back, one knee bent. Tighten the thigh of the straight leg and lift it to the height of the other knee.",[]],
+    ["Goblet squat","Hold one dumbbell at your chest. Squat down between your knees with heels flat and chest up.",["knee"]],
+    ["Step-up","Step onto a low box, stand tall, step down under control. Knee stays in line with your toes.",["knee"]],
+    ["Walking lunge","Take a long step, lower the back knee toward the floor, push through the front heel.",["knee"]]
+  ]},
+  hamstrings:{label:"Hamstrings (back of thighs)",group:"lower",words:["hamstrings","hamstring","hams","legs","leg"],ex:[
+    ["Glute bridge walk-out","Lift into a bridge, then walk your heels out a few small steps and back in while keeping hips up.",[]],
+    ["Slider or stability-ball hamstring curl","In a bridge with heels on sliders or a ball, pull your heels toward your hips and extend slowly.",[]],
+    ["Dumbbell Romanian deadlift","Soft knees, push your hips back with a flat back until you feel a stretch behind your thighs, then stand tall.",["lowback"]],
+    ["Good morning (light)","Hands behind your head or a light bar on your back. Hinge at the hips with a flat back, return.",["lowback"]]
+  ]},
+  glutes:{label:"Glutes",group:"lower",words:["glutes","glute","butt","booty","hips","legs","leg"],ex:[
+    ["Glute bridge","On your back, feet flat. Drive through your heels and lift your hips until shoulders, hips and knees line up. Squeeze at the top.",[]],
+    ["Hip thrust","Upper back on a bench, feet flat. Lift your hips to level, pause, lower. Add a dumbbell on your hips when it gets easy.",[]],
+    ["Banded side step","Mini-band above your knees, slight squat. Take small steps sideways without letting your knees cave in.",[]],
+    ["Bulgarian split squat","Back foot on a bench. Lower straight down on the front leg, push through the front heel.",["knee"]]
+  ]},
+  calves:{label:"Calves",group:"lower",words:["calves","calf","legs","leg","lower legs"],ex:[
+    ["Standing calf raise","Stand on the edge of a step. Rise onto the balls of your feet, pause, lower your heels slowly below the step.",[]],
+    ["Single-leg calf raise","Same movement on one leg, holding a wall for balance.",[]],
+    ["Seated calf raise","Sit with a dumbbell on your knee. Lift your heel as high as you can, lower slowly.",[]],
+    ["Jump rope","Light, quick hops on the balls of your feet for 30–60 seconds.",["knee"]]
+  ]}
+};
+
+const CONDS = {
+  asthma:{label:"Asthma",tags:[],avoid:["Hard training in cold, dry air or when pollen is high","Skipping your warm-up","Training when you are wheezing or sick"],tips:["Keep your rescue inhaler in your gym bag and use it as prescribed","Warm up for a full 10 minutes and rest longer between sets"]},
+  knee:{label:"Knee pain or injury",tags:["knee"],avoid:["Deep squats, lunges and jumping until cleared","Letting your knees cave inward","Pushing through sharp or pinching pain"],tips:["Stay in a pain-free range of motion","Build glutes and hamstrings — they protect the knee"]},
+  back:{label:"Lower-back pain",tags:["lowback"],avoid:["Heavy deadlifts, good mornings and bent-over rows","Sit-ups and leg raises that arch the back","Rounding your back under any load"],tips:["Choose supported versions (hand on a bench, chest on a pad)","Train the core with dead bugs and bird dogs"]},
+  scoliosis:{label:"Scoliosis",tags:[],avoid:["Heavy weights loaded straight down the spine (heavy back squats, overhead presses) unless your doctor approves","Always loading only one side"],tips:["Ask your doctor or physical therapist which movements suit your curve","Favor core stability work and balanced left/right training"]},
+  shoulder:{label:"Shoulder pain or injury",tags:["shoulder"],avoid:["Overhead pressing, dips and wide-grip pulling until cleared","Raising weights above shoulder height","Any movement that pinches or clicks with pain"],tips:["Pulling work like band face pulls and rows usually feels better than pressing","Keep weights light and movements slow"]},
+  wrist:{label:"Wrist pain or injury",tags:["wrist"],avoid:["Push-ups and dips on flat palms","Heavy wrist curls","Catching or bouncing weights"],tips:["Use dumbbells or push-up handles to keep wrists straight","Neutral grip (palms facing each other) is usually most comfortable"]},
+  hbp:{label:"High blood pressure",tags:["strain"],avoid:["Holding your breath while lifting","Maximum-effort lifts and long straining holds","Energy drinks and pre-workout supplements"],tips:["Breathe out on the hard part of every rep","Use lighter weights for 12–15 reps and rest fully between sets"]},
+  heart:{label:"Heart condition",clear:true,tags:["strain"],avoid:["Starting any program without written clearance from your doctor","Training alone","Continuing if you feel chest pain, dizziness or an unusual heartbeat"],tips:["Give your coach a copy of your doctor's instructions"]},
+  diabetes:{label:"Diabetes",tags:[],avoid:["Training on an empty stomach","Skipping your glucose checks around workouts","Training with a blood sugar level outside the range your care team gave you"],tips:["Carry fast-acting carbs (juice, glucose tabs) to every session","Tell your coach and training partner what a low looks like for you"]},
+  concussion:{label:"Recent concussion",clear:true,tags:["strain"],avoid:["Any training until a doctor clears you to return","Contact, jumping and heavy straining during your return-to-play steps"],tips:["Follow your school's return-to-play protocol step by step","Stop and report it if symptoms come back"]}
+};
+
+const NUTRITION = {
+  eat:["Lean protein at every meal: eggs, chicken, fish, lean beef, beans, lentils, tofu, Greek yogurt, milk","Slow carbs for energy: oatmeal, brown rice, whole-grain bread and pasta, potatoes, fruit","Healthy fats: peanut butter, nuts, seeds, avocado, olive oil","Color on every plate: at least one fruit or vegetable each meal","Calcium and iron for growing bodies: milk, cheese, yogurt, leafy greens, beans, lean red meat"],
+  timing:["1–2 hours before training: a banana with peanut butter, or a turkey sandwich","Within an hour after: chocolate milk, a yogurt with fruit, or a full meal with protein and carbs","Never skip breakfast on a training day"],
+  limit:["Energy drinks and pre-workout powders","Soda, candy and fried fast food as daily habits","Crash diets or cutting whole food groups to change your weight"]
+};
+
+const HABITS = [
+  "Sleep 8–10 hours. Muscle is built while you sleep, not while you lift.",
+  "Warm up 5–10 minutes (light jog, arm circles, bodyweight squats) and stretch afterward.",
+  "Learn the form first. Add weight only when you can do every rep cleanly.",
+  "Rest each muscle group at least 48 hours before training it again.",
+  "Take 1–2 full rest days a week. Soreness is normal; sharp pain is a stop sign.",
+  "Carry a water bottle to class and sip all day.",
+  "Plan workouts around school: put them in your calendar like a class, and keep exam weeks lighter.",
+  "Never lift alone — use a spotter or train where a coach can see you.",
+  "Stay away from steroids and 'muscle-building' supplements. Food, sleep and consistency do the work.",
+  "Write down what you lifted each session so you can see your progress."
+];
+
+/* =====================================================================
+   APP
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+let customVideos = store.get("ss_videos") || {};
+
+// Build condition checkboxes and muscle chips
+$("conds").innerHTML = Object.entries(CONDS).map(([k,c]) =>
+  `<label><input type="checkbox" value="${k}"><span>${esc(c.label)}</span></label>`).join("");
+$("chips").innerHTML = Object.entries(MUSCLES).map(([k,m]) =>
+  `<button type="button" class="chip" data-word="${esc(m.words[0])}">${esc(m.label)}</button>`).join("");
+
+// Units toggle
+function setUnits(u){
+  document.querySelectorAll(".imp").forEach(e => e.hidden = u !== "imperial");
+  document.querySelectorAll(".met").forEach(e => e.hidden = u !== "metric");
+}
+document.querySelectorAll("input[name=units]").forEach(r => r.addEventListener("change", () => setUnits(r.value)));
+
+// Chips add/remove words in the text box
+function typedWords(){ return $("muscles").value.split(/[,;\n]+/).map(s => s.trim().toLowerCase()).filter(Boolean); }
+function syncChips(){
+  const words = typedWords();
+  document.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", words.includes(c.dataset.word)));
+}
+$("chips").addEventListener("click", e => {
+  const chip = e.target.closest(".chip"); if(!chip) return;
+  let words = typedWords();
+  const w = chip.dataset.word;
+  words = words.includes(w) ? words.filter(x => x !== w) : [...words, w];
+  $("muscles").value = words.join(", ");
+  syncChips();
+});
+$("muscles").addEventListener("input", syncChips);
+
+function matchMuscles(){
+  const found = [], unknown = [];
+  typedWords().forEach(w => {
+    const clean = w.replace(/[^a-z ]/g, "").trim();
+    const hits = Object.keys(MUSCLES).filter(k => MUSCLES[k].words.includes(clean));
+    if(hits.length) hits.forEach(h => { if(!found.includes(h)) found.push(h); });
+    else if(clean) unknown.push(w);
+  });
+  return {found, unknown};
+}
+
+function readForm(){
+  const units = document.querySelector("input[name=units]:checked").value;
+  return {
+    units, name:$("name").value.trim(), age:$("age").value,
+    ft:$("ft").value, inch:$("inch").value, lb:$("lb").value, cm:$("cm").value, kg:$("kg").value,
+    conds:[...document.querySelectorAll("#conds input:checked")].map(i => i.value),
+    notes:$("notes").value.trim(), muscles:$("muscles").value
+  };
+}
+function fillForm(d){
+  document.querySelector(`input[name=units][value=${d.units === "metric" ? "metric" : "imperial"}]`).checked = true;
+  setUnits(d.units);
+  ["name","age","ft","inch","lb","cm","kg","notes","muscles"].forEach(k => { if(d[k] != null) $(k).value = d[k]; });
+  document.querySelectorAll("#conds input").forEach(i => i.checked = (d.conds || []).includes(i.value));
+  syncChips();
+}
+
+function videoFor(name){ return customVideos[name] || VIDEO_IDS[name] || ""; }
+function parseYouTube(url){
+  const m = String(url).match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/|\/live\/)([\w-]{11})/);
+  return m ? m[1] : (/^[\w-]{11}$/.test(String(url).trim()) ? String(url).trim() : "");
+}
+
+function exCard(e){
+  const [name, how] = e, vid = videoFor(name);
+  const q = encodeURIComponent(name + " proper form tutorial");
+  return `<li class="ex" data-ex="${esc(name)}">
+    <strong>${esc(name)}</strong>
+    <p>${esc(how)}</p>
+    <div class="vid-row no-print">
+      ${vid ? `<button type="button" class="btn-s play" data-id="${esc(vid)}">&#9654; Play video</button>` : ""}
+      <a class="btn-s link" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${q}">Find latest on YouTube &#8599;</a>
+      <button type="button" class="btn-s ghost addvid">${vid ? "Change video" : "Paste a link to play it here"}</button>
+    </div>
+    <div class="player"></div>
+    ${vid ? `<p class="print-only small">Video: https://youtu.be/${esc(vid)}</p>` : ""}
+  </li>`;
+}
+
+function listHtml(items){ return "<ul>" + items.map(i => `<li>${esc(i)}</li>`).join("") + "</ul>"; }
+
+function build(scroll){
+  const d = readForm(), err = $("err");
+  err.textContent = "";
+  const age = Number(d.age);
+  let cm, kg;
+  if(d.units === "metric"){ cm = Number(d.cm); kg = Number(d.kg); }
+  else { cm = Number(d.ft) * 30.48 + Number(d.inch || 0) * 2.54; kg = Number(d.lb) * 0.4536; }
+  if(!(age >= 10 && age <= 25)) return fail("Enter an age between 10 and 25.");
+  if(!(cm >= 100 && cm <= 220)) return fail("Enter your height.");
+  if(!(kg >= 25 && kg <= 180)) return fail("Enter your weight.");
+  const {found, unknown} = matchMuscles();
+  if(!found.length) return fail("Type at least one muscle we know, like chest, back, shoulders, biceps, triceps, forearms, abs, quads, hamstrings, glutes or calves.");
+
+  const blocked = new Set(), needClear = [];
+  d.conds.forEach(k => { CONDS[k].tags.forEach(t => blocked.add(t)); if(CONDS[k].clear) needClear.push(CONDS[k].label); });
+
+  let dose;
+  if(age < 13) dose = "1–2 sets of 10–15 reps using body weight or very light resistance, with a coach or adult watching your form.";
+  else if(age < 16) dose = "2–3 sets of 10–15 reps with light-to-moderate weight. Rest 60–90 seconds between sets.";
+  else dose = "3 sets of 8–12 reps with a moderate weight — the last two reps should be hard but clean. Rest 60–90 seconds between sets.";
+
+  const heightTxt = d.units === "metric" ? `${Math.round(cm)} cm` : `${d.ft}'${d.inch || 0}"`;
+  const weightTxt = d.units === "metric" ? `${Math.round(kg)} kg` : `${Math.round(Number(d.lb))} lb`;
+
+  let h = `<div class="plan-head">
+    <h2>${d.name ? esc(d.name) + "'s plan" : "Your plan"}</h2>
+    <div class="stats"><span>Age <strong>${age}</strong></span><span>Height <strong>${esc(heightTxt)}</strong></span><span>Weight <strong>${esc(weightTxt)}</strong></span>
+    <span>Focus <strong>${found.map(k => esc(MUSCLES[k].label)).join(", ")}</strong></span></div>
+  </div>`;
+
+  // Safety
+  h += `<section class="card"><h3>Safety first</h3>`;
+  if(needClear.length) h += `<div class="note stop"><h4>Get a doctor's clearance before you start</h4>Because you ticked ${esc(needClear.join(" and "))}, show this plan to your doctor first and do not train until they say yes.</div>`;
+  if(!d.conds.length && !d.notes) h += `<p>No conditions listed. Still stop any exercise that causes sharp pain, dizziness or trouble breathing, and tell a coach.</p>`;
+  d.conds.forEach(k => { const c = CONDS[k];
+    h += `<div class="note"><h4>${esc(c.label)}</h4><strong>Avoid:</strong>${listHtml(c.avoid)}<strong style="display:block;margin-top:6px">Do instead:</strong>${listHtml(c.tips)}</div>`; });
+  if(d.notes) h += `<div class="note"><h4>Your notes — show these to your coach or doctor</h4>${esc(d.notes)}<p class="small" style="margin:6px 0 0">The app can't adjust the plan for typed notes. Ask a coach which exercises to swap.</p></div>`;
+  h += `</section>`;
+
+  // Workouts
+  h += `<section class="card"><h3>Your workouts</h3><p><strong>How much:</strong> ${esc(dose)}</p>`;
+  if(unknown.length) h += `<p class="skipped">We didn't recognize: ${esc(unknown.join(", "))}. Try a name from the buttons above.</p>`;
+  found.forEach(k => {
+    const m = MUSCLES[k];
+    const safe = m.ex.filter(e => !e[2].some(t => blocked.has(t)));
+    const cut = m.ex.filter(e => e[2].some(t => blocked.has(t)));
+    h += `<div class="muscle"><h4>${esc(m.label)}</h4>`;
+    if(safe.length) h += `<ul class="exs">${safe.slice(0,4).map(exCard).join("")}</ul>`;
+    else h += `<p class="skipped">Every ${esc(m.label.toLowerCase())} exercise we list conflicts with a condition you ticked. Ask a physical therapist or athletic trainer for safe options.</p>`;
+    if(cut.length) h += `<p class="skipped">Left out because of your health check: ${cut.map(e => esc(e[0])).join(", ")}.</p>`;
+    h += `</div>`;
+  });
+  h += `</section>`;
+
+  // Week
+  const up = found.filter(k => MUSCLES[k].group === "upper").map(k => MUSCLES[k].label);
+  const lo = found.filter(k => MUSCLES[k].group === "lower").map(k => MUSCLES[k].label);
+  const co = found.filter(k => MUSCLES[k].group === "core").map(k => MUSCLES[k].label);
+  let days;
+  if(found.length <= 3){
+    const all = found.map(k => MUSCLES[k].label).join(", ");
+    days = [["Mon",all],["Tue","Rest or sport practice"],["Wed",all],["Thu","Rest or sport practice"],["Fri",all],["Sat","Light activity"],["Sun","Rest"]];
+  } else {
+    const A = [...up, ...co].join(", ") || "Rest", B = [...lo, ...(up.length ? [] : co)].join(", ") || "Rest";
+    days = [["Mon",A],["Tue",B],["Wed","Rest or sport practice"],["Thu",A],["Fri",B],["Sat","Light activity"],["Sun","Rest"]];
+  }
+  h += `<section class="card"><h3>Your week</h3><div class="week">${days.map(x => `<div class="day"><b>${x[0]}</b>${esc(x[1])}</div>`).join("")}</div>
+    <p class="small">In season? Count team practice as training and cut this to two days.</p></section>`;
+
+  // Nutrition
+  const pLo = Math.round(kg * 1.2 / 5) * 5, pHi = Math.round(kg * 1.6 / 5) * 5;
+  const wLo = (kg * 0.03).toFixed(1), wHi = (kg * 0.04).toFixed(1);
+  const cups = l => Math.round(l * 4.2);
+  h += `<section class="card"><h3>Fuel</h3>
+    <p>For your weight, a rough daily guide is <strong>${pLo}–${pHi} g of protein</strong> spread across meals and <strong>${wLo}–${wHi} liters of water</strong> (about ${cups(wLo)}–${cups(wHi)} cups), more on hot or hard days. These are estimates, not targets to stress over.</p>
+    <div class="cols">
+      <div><h4>Eat more of</h4>${listHtml(NUTRITION.eat)}</div>
+      <div><h4>Around training</h4>${listHtml(NUTRITION.timing)}<h4 style="margin-top:12px">Go easy on</h4>${listHtml(NUTRITION.limit)}</div>
+    </div>
+    ${d.conds.includes("diabetes") ? `<p class="note">With diabetes, follow the meal and insulin plan from your care team first; use this list only where it fits that plan.</p>` : ""}
+  </section>`;
+
+  // Habits
+  h += `<section class="card"><h3>Student-athlete habits</h3>${listHtml(HABITS)}</section>`;
+
+  // Actions
+  h += `<section class="card no-print"><div class="actions">
+      <button type="button" class="btn dark" id="saveBtn">Save</button>
+      <button type="button" class="btn" id="printBtn">Print</button>
+      <button type="button" class="btn line" id="editBtn">Edit answers</button>
+      <span id="saveMsg" role="status"></span>
+    </div>
+    <p class="small" style="margin:10px 0 0">Save keeps your answers and plan in this browser on this device only. On a shared computer, use Print instead, or <a href="#" id="clearBtn">delete saved data</a> when you finish.</p>
+  </section>
+  <p class="small print-only">General fitness education, not medical advice. Check with a doctor or athletic trainer before starting.</p>`;
+
+  const plan = $("plan");
+  plan.innerHTML = h;
+  plan.style.display = "block";
+  if(scroll) plan.scrollIntoView({behavior:"smooth", block:"start"});
+  return true;
+
+  function fail(msg){ err.textContent = msg; return false; }
+}
+
+$("formCard").addEventListener("submit", e => { e.preventDefault(); build(true); });
+
+$("plan").addEventListener("click", e => {
+  const t = e.target;
+  if(t.closest(".play")){
+    const b = t.closest(".play"), box = b.closest(".ex").querySelector(".player");
+    if(box.firstChild){ box.innerHTML = ""; b.innerHTML = "&#9654; Play video"; return; }
+    box.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(b.dataset.id)}?rel=0&autoplay=1" title="Exercise video" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+    b.textContent = "Close video";
+  } else if(t.closest(".addvid")){
+    const name = t.closest(".ex").dataset.ex;
+    const url = prompt(`Paste a YouTube link for "${name}" (leave empty to remove your link):`, "");
+    if(url === null) return;
+    if(url.trim() === ""){ delete customVideos[name]; }
+    else {
+      const id = parseYouTube(url);
+      if(!id){ alert("That doesn't look like a YouTube link."); return; }
+      customVideos[name] = id;
+    }
+    store.set("ss_videos", customVideos);
+    build(false);
+  } else if(t.id === "saveBtn"){
+    const ok = store.set("ss_profile", readForm());
+    $("saveMsg").textContent = ok ? "Saved on this device. It will be here next time you open the app." : "Couldn't save — this browser is blocking storage. Use Print instead.";
+  } else if(t.id === "printBtn"){
+    window.print();
+  } else if(t.id === "editBtn"){
+    $("formCard").scrollIntoView({behavior:"smooth"});
+  } else if(t.id === "clearBtn"){
+    e.preventDefault();
+    store.del("ss_profile"); store.del("ss_videos"); customVideos = {};
+    $("saveMsg").textContent = "Saved data deleted from this device.";
+  }
+});
+
+// Restore a saved plan
+const saved = store.get("ss_profile");
+if(saved){ fillForm(saved); build(false); }
+</script>
+</body>
+</html>
